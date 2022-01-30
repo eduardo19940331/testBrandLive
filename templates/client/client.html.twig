@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}<h1>
+    Administrador de Clientes /
+    <small>Listado de Clientes</small>
+</h1>{% endblock %}
+{% block body %}
+
+<div class="card text-white col-lg-12" style="padding: 0px">
+    <div class="card-header bg-primary">
+        Administrador de Clientes
+        <div class="pull-right">
+            <a href="{{ path('createclient') }}" type="button" class="btn btn-sm btn-primary"><i class="fa fa-user"></i> Nuevo Cliente</a>
+        </div>
+    </div>
+    <div class="card-body text-black">
+        <table id="table-list-user" class="table">
+            <thead>
+                <tr>
+                    <th class='text-center'>Rut</th>
+                    <th class='text-center'>Nombre</th>
+                    <th class='text-center'>Celular</th>
+                    <th class='text-center'>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal" id="modal-confirm-accion-user" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titleConfirm">Eliminación de Cliente</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h5 id="textConfirm">¿Esta realmente seguro que desea eliminar el Cliente?</h5>
+                <input type="hidden" id="identificateDeleted">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="button" id="textButtonConfirm" class="btn btn-primary btn-acept-remove-user">Si, Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        $(document).ready(function() {
+
+        });
+    </script>
+{% endblock %}

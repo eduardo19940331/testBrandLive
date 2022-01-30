@@ -1,0 +1,88 @@
+version: '3.5'
+services:
+    nginx:
+        container_name: template-nginx
+        build:
+            context: ./docker/nginx
+            args:
+                UID: $U_ID
+        ports:
+            - 80:80
+        volumes:
+            - ./public:/appdata/www/public
+        depends_on:
+            - php
+        networks:
+            - template-network
+
+    php:
+        container_name: template-php
+        build:
+            context: docker/php
+            args:
+                UID: $U_ID
+        ports:
+            - 9000:9000
+            - 5001:5001
+        ###> XDEBUG 3 ###
+        # Use your client IP here
+        # Linux: run "ip a | grep docker0"
+        # Windows (with WSL2): Run "grep nameserver /etc/resolv.conf  | cut -d ' ' -f2"
+        # MacOS: host.docker.internal
+        ###< XDEBUG 3 ###
+        environment:
+            #XDEBUG_CONFIG: remote_host=${PHP_XDEBUG_CLIENT_HOST} remote_port=${PHP_XDEBUG_CLIENT_PORT}
+            XDEBUG_CLIENT_HOST: 172.17.0.1
+            XDEBUG_CLIENT_PORT: 9003
+            PHP_IDE_CONFIG: serverName=Docker
+        volumes:
+            - ./:/appdata/www
+            #- ./docker/php/xdebug-linux.ini:/usr/local/etc/php/conf.d/xdebug.ini
+            #- ./docker/php/xdebug-macos.ini:/usr/local/etc/php/conf.d/xdebug.ini
+            - ./docker/php/xdebug-3.ini:/usr/local/etc/php/conf.d/xdebug.ini
+            - ~/.ssh/id_rsa_ubinn:/home/appuser/.ssh/id_rsa
+        depends_on:
+            - mysql
+        networks:
+            - template-network
+
+    mysql:
+        container_name: template-mysql
+        image: mysql:5.7
+        ports:
+            - 3306:3306
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: argos
+            MYSQL_USER: docker
+            MYSQL_PASSWORD: secret
+        command: mysqld --sql_mode="" #STRICT_ALL_TABLES,NO_ENGINE_SUBSTITUTION
+        volumes:
+            - template-data-db:/var/lib/mysql
+        networks:
+            - template-network
+
+###> doctrine/doctrine-bundle ###
+  database:
+    image: postgres:${POSTGRES_VERSION:-13}-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-app}
+      # You should definitely change the password in production
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ChangeMe}
+      POSTGRES_USER: ${POSTGRES_USER:-symfony}
+    volumes:
+      - db-data:/var/lib/postgresql/data:rw
+      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
+      # - ./docker/db/data:/var/lib/postgresql/data:rw
+###< doctrine/doctrine-bundle ###
+
+volumes:
+
+###> doctrine/doctrine-bundle ###
+  db-data:
+###< doctrine/doctrine-bundle ###
+    template-data-db:
+
+networks:
+    template-network:
+        external: true

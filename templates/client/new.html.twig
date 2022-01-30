@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}<h1>
+    Administrador de Clientes /
+    <small>Listado de Clientes</small>
+</h1>{% endblock %}
+{% block body %}
+
+<div class="card text-white col-lg-12" style="padding: 0px">
+    <div class="card-header bg-primary">
+        Administrador de Usuarios
+        <div class="pull-right">
+            <a href="{{ path('client') }}" type="button" class="btn btn-sm btn-primary"><i class="fa fa-arrow-left"></i> Todos los Usuarios</a>
+        </div>
+    </div>
+    <div class="card-body text-black">
+        <h5 class="card-title">{{ client != null ? 'Editar Usuario' : 'Nuevo Usuario' }}</h5>
+        <br>
+        <form id="newUser">
+            <input type="hidden" id="id_user" name="id_user" value="{{ client.id|default('') }}" />
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="first_name">Nombre</label>
+                    <input type="text" class="form-control" maxlength="150" id="first_name" name="first_name" value="{{ client.first_name|default('') }}">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="last_name">Apellido</label>
+                    <input type="text" class="form-control" maxlength="150" id="last_name" name="last_name" value="{{ client.last_name|default('') }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="email">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" value="{{ client.email|default('') }}">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="gclient">Grupo de Cliente</label>
+                    <select id="gclient" name="gclient" class="form-control">
+                        <option selected value="">-- Seleccione --</option>
+                        <option value="1" {{ client.gclient|default(0) == 1 ? 'selected="selected"' : '' }}>Grupo 1</option>
+                        <option value="2" {{ client.gclient|default(0) == 2 ? 'selected="selected"' : '' }}>Grupo 2</option>
+                        <option value="3" {{ client.gclient|default(0) == 2 ? 'selected="selected"' : '' }}>Grupo 3</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-12">
+                    <label for="observation">Observaciones</label>
+                    <textarea id="observation" name="observation" class="form-control" style="resize:none">{{ client.arrivalDateFormat|default('') }}</textarea>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    $(document).ready(function() {
+
+    });
+</script>
+{% endblock %}
