@@ -69,7 +69,7 @@ class Client
     /**
      * @var int
      *
-     * @ORM\Column(name="enabled", type="integer", nullable=false)
+     * @ORM\Column(name="enabled", type="integer", nullable=false, options={"default"="1"})
      */
     private $enabled;
 
@@ -213,7 +213,7 @@ class Client
      *
      * @param boolean $enabled
      */
-    public function setEnabled($enabled): self
+    public function setEnabled($enabled = 1): self
     {
         $this->enabled = $enabled;
 
