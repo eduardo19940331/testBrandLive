@@ -10,11 +10,11 @@
     <div class="card-header bg-primary">
         Administrador de Clientes
         <div class="pull-right">
-            <a href="{{ path('createclient') }}" type="button" class="btn btn-sm btn-primary"><i class="fa fa-user"></i> Nuevo Cliente</a>
+            <a href="{{ path('createclient') }}" type="button" class="btn btn-sm btn-primary"><i class="fa fa-users"></i> Nuevo Cliente</a>
         </div>
     </div>
     <div class="card-body text-black">
-        <table id="table-list-user" class="table">
+        <table id="table-list-clients" class="table">
             <thead>
                 <tr>
                     <th class='text-center'>Rut</th>
@@ -24,12 +24,23 @@
                 </tr>
             </thead>
             <tbody>
+                {% for client in clients %}
+                    <tr data-ident="{{ client.id }}">
+                        <td class='text-center'>{{ client.firstname|default('') }}</td>
+                        <td class='text-center'>{{ client.lastname|default('') }}</td>
+                        <td class='text-center'>{{ client.email|default('') }}</td>
+                        <td class='text-center'>
+                            <a href="{{ path('editclient', {id:client.id}) }}" class="btn btn-sm btn-success btn-edit"><i class="fa fa-edit"></i></a> 
+                            <a class="btn btn-sm btn-danger btn-remove" data-ident="{{ client.id }}"><i class="fa fa-times"></i></a> 
+                        </td>
+                    </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
 
-<div class="modal" id="modal-confirm-accion-user" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+<div class="modal" id="modal-confirm-accion-client" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -44,7 +55,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                <button type="button" id="textButtonConfirm" class="btn btn-primary btn-acept-remove-user">Si, Eliminar</button>
+                <button type="button" id="textButtonConfirm" class="btn btn-primary btn-acept-remove-client">Si, Eliminar</button>
             </div>
         </div>
     </div>
@@ -56,6 +67,31 @@
     <script>
         $(document).ready(function() {
 
+        });
+
+        $(document).on("click", ".btn-remove", function () {
+            var ident = $(this).data("ident");
+            $("#identificateDeleted").val(ident);
+            $("#modal-confirm-accion-client").modal();
+        });
+
+        $("#textButtonConfirm").click(function () {
+            $.ajax({
+                url : '{{ path('deletedclient') }}',
+                data : { ident : $("#identificateDeleted").val() },
+                type : 'POST',
+                success : function(json) {
+                    var data = JSON.parse(json);
+                    console.log(data);
+                    toast.success('Exito!', 'Registro almacenado correctamente');
+                },
+                error : function(xhr, status) {
+                    toast.error('Error!','Disculpe las molestias, existió un problema');
+                },
+                complete : function(xhr, status) {
+
+                }
+            });
         });
     </script>
 {% endblock %}
