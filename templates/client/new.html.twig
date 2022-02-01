@@ -14,37 +14,55 @@
         </div>
     </div>
     <div class="card-body text-black">
-        <h5 class="card-title">{{ client != null ? 'Editar Usuario' : 'Nuevo Usuario' }}</h5>
+        <h5 class="card-title">{{ client|default('') != null ? 'Editar Usuario' : 'Nuevo Usuario' }}</h5>
         <br>
-        <form id="newUser">
-            <input type="hidden" id="id_user" name="id_user" value="{{ client.id|default('') }}" />
+        <form id="saveClient" method="">
+            <input type="hidden" id="id_client" name="id_client" value="{{ client.id|default('') }}" />
             <div class="form-row">
-                <div class="form-group col-md-6">
+                <div class="form-group col-md-4">
                     <label for="first_name">Nombre</label>
-                    <input type="text" class="form-control" maxlength="150" id="first_name" name="first_name" value="{{ client.first_name|default('') }}">
+                    <input type="text" class="form-control" maxlength="150" id="firstname" name="firstname" value="{{ client.firstname|default('') }}">
                 </div>
-                <div class="form-group col-md-6">
-                    <label for="last_name">Apellido</label>
-                    <input type="text" class="form-control" maxlength="150" id="last_name" name="last_name" value="{{ client.last_name|default('') }}">
+                <div class="form-group col-md-4">
+                    <label for="lastname">Apellido</label>
+                    <input type="text" class="form-control" maxlength="150" id="lastname" name="lastname" value="{{ client.lastname|default('') }}">
                 </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group col-md-6">
+                <div class="form-group col-md-4">
                     <label for="email">Email</label>
                     <input type="email" class="form-control" id="email" name="email" value="{{ client.email|default('') }}">
                 </div>
+            </div>
+            <div class="form-row" action="{{ path('saveclient') }}" method="POST">
+                <div class="form-group col-md-6">
+                    <label for="description">Observaciones</label>
+                    <textarea id="description" name="description" class="form-control" style="resize:none">{{ client.description|default('') }}</textarea>
+                </div>
                 <div class="form-group col-md-6">
                     <label for="gclient">Grupo de Cliente</label>
-                    <select id="gclient" name="gclient" class="form-control">
-                        <option selected value="">-- Seleccione --</option>
-                        <option value="1" {{ client.gclient|default(0) == 1 ? 'selected="selected"' : '' }}>Grupo 1</option>
-                        <option value="2" {{ client.gclient|default(0) == 2 ? 'selected="selected"' : '' }}>Grupo 2</option>
-                        <option value="3" {{ client.gclient|default(0) == 2 ? 'selected="selected"' : '' }}>Grupo 3</option>
-                    </select>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="gclient1" name="gclient[]" {{ client.gclient|default(0) == 1 ? 'checked' }}>
+                        <label class="form-check-label" for="gclient1">
+                            Grupo Elite
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="gclient2" name="gclient[]" {{ client.gclient|default(0) == 2 ? 'checked' }}>
+                        <label class="form-check-label" for="gclient2">
+                            Grupo Black
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="gclient3" name="gclient[]" {{ client.gclient|default(0) == 3 ? 'checked' }}>
+                        <label class="form-check-label" for="gclient3">
+                            Grupo Basic
+                        </label>
+                    </div>
                 </div>
+            </div>
+            <br>
+            <div class="form-row">
                 <div class="form-group col-md-12">
-                    <label for="observation">Observaciones</label>
-                    <textarea id="observation" name="observation" class="form-control" style="resize:none">{{ client.arrivalDateFormat|default('') }}</textarea>
+                    <button class="bt btn-success btn-sm pull-right"><i class="fa fa-save"></i> Guardar</button>
                 </div>
             </div>
         </form>
@@ -55,8 +73,73 @@
 
 {% block javascripts %}
 <script>
-    $(document).ready(function() {
-
+    $("#saveClient").validate({
+        rules: {
+            firstname: {
+                required: true,
+                minlength: 3
+            },
+            lastname: {
+                required: true,
+                minlength: 3
+            },
+            email: {
+                required: true,
+                email: true
+            },
+            description: {
+                required: true
+            }
+        },
+        messages: {
+            firstname: {
+                required: "Ingrese el Nombre Valido",
+                minlength: jQuery.validator.format("Debe Ingresar mas de {0} caracteres")
+            },
+            lastname: {
+                required: "Ingrese un Apellido Valido",
+                minlength: jQuery.validator.format("Debe Ingresar mas de {0} caracteres")
+            },
+            email: {
+                required: "Ingrese Correo Valido",
+                minlength: "Ingrese Correo Valido"
+            },
+            description: {
+                required: "Ingrese Número de Telefono"
+            }
+        },
+        // the errorPlacement has to take the table layout into account
+        errorPlacement: function(error, element) {
+            var hasError = 0;
+            if (!element.val()) {
+                if (element.is(":radio")) {
+                    error.appendTo(element.parent().next().next());
+                    hasError++;
+                } else if (element.is(":checkbox")) {
+                    error.appendTo(element.next());
+                    hasError++;
+                } else {
+                    error.appendTo(element.parent());
+                    hasError++;
+                }
+            }
+            if (hasError > 0) {
+                error.addClass("input-text-has-error");
+                toastr.error("Favor completar todos los campos", "Ups!");
+                element.addClass('hasError');
+            }
+        },
+        submitHandler: function(form) {
+            showChargePageLoad(true);
+            $("#saveClient").submit();
+        },
+        // set this class to error-labels to indicate valid fields
+        success: function(label) {
+            label.html("&nbsp;").addClass("checked");
+        },
+        highlight: function(element, errorClass) {
+            $(element).parent().next().find("." + errorClass).removeClass("checked");
+        }
     });
 </script>
 {% endblock %}
