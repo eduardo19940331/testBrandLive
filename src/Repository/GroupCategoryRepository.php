@@ -3,9 +3,9 @@
 namespace App\Repository;
 
 use Doctrine\ORM\EntityRepository;
-use App\Entity\Group;
+use App\Entity\GroupCategory;
 
-class GroupRepository extends EntityRepository
+class GroupCategoryRepository extends EntityRepository
 {
     /**
      * Obtiene todos los Grupos con el enabled = 1
@@ -14,7 +14,7 @@ class GroupRepository extends EntityRepository
     {
         $manager = $this->getEntityManager();
 
-        $query = "SELECT g.`name` as name_group, g.id as ident_group FROM `group` g WHERE g.enabled = 1 ORDER BY g.name";
+        $query = "SELECT g.`name` as name_group, g.id as ident_group FROM group_category g WHERE g.enabled = 1 ORDER BY g.name";
         $conn = $manager->getConnection();
         $stmt = $conn->prepare($query);
         $stmt->execute();

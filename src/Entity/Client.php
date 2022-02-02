@@ -62,7 +62,7 @@ class Client
     /**
      * @var string
      *
-     * @ORM\Column(name="description", type="text", length=65535, nullable=false)
+     * @ORM\Column(name="description", type="string", length=300, nullable=false)
      */
     private $description;
 
@@ -79,6 +79,23 @@ class Client
      * @ORM\Column(name="deleted_at", type="datetime", nullable=true)
      */
     private $deletedAt;
+
+
+    /**
+     * @ORM\OneToMany(targetEntity="ClientGroup", mappedBy="client")
+     * @var \ClientGroup[]
+     **/
+    private $clientGroup;
+
+    /**
+     * Get clientGroup
+     *
+     * @return ClientGroup[]
+     */
+    public function getClientGroups()
+    {
+        return $this->clientGroup;
+    }
 
     /**
      * Get id

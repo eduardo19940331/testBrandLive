@@ -17,10 +17,11 @@
         <table id="table-list-clients" class="table">
             <thead>
                 <tr>
-                    <th class='text-center'>Rut</th>
-                    <th class='text-center'>Nombre</th>
-                    <th class='text-center'>Celular</th>
-                    <th class='text-center'>Acciones</th>
+                    <th class='text-center'>NOMBRE</th>
+                    <th class='text-center'>APELLIDO</th>
+                    <th class='text-center'>EMAIL</th>
+                    <th class='text-center'>GRUPOS</th>
+                    <th class='text-center'>ACCIONES</th>
                 </tr>
             </thead>
             <tbody>
@@ -29,6 +30,7 @@
                         <td class='text-center'>{{ client.firstname|default('') }}</td>
                         <td class='text-center'>{{ client.lastname|default('') }}</td>
                         <td class='text-center'>{{ client.email|default('') }}</td>
+                        <td class='text-center'>{{ client.clientg|default('') }}</td>
                         <td class='text-center'>
                             <a href="{{ path('editclient', {id:client.id}) }}" class="btn btn-sm btn-success btn-edit"><i class="fa fa-edit"></i></a> 
                             <a class="btn btn-sm btn-danger btn-remove" data-ident="{{ client.id }}"><i class="fa fa-times"></i></a> 
@@ -76,14 +78,17 @@
         });
 
         $("#textButtonConfirm").click(function () {
+            var ident = $("#identificateDeleted").val();
             $.ajax({
                 url : '{{ path('deletedclient') }}',
-                data : { ident : $("#identificateDeleted").val() },
+                data : { ident : ident },
                 type : 'POST',
                 success : function(json) {
-                    var data = JSON.parse(json);
-                    console.log(data);
-                    toast.success('Exito!', 'Registro almacenado correctamente');
+                    if (json.state == "success") {
+                        $("#modal-confirm-accion-client").modal('hide');
+                        $(`[data-ident='${ident}'`).remove();
+                        toast.success(json.message ?? 'Cliente eliminado correctamente', 'Exito!');
+                    }
                 },
                 error : function(xhr, status) {
                     toast.error('Error!','Disculpe las molestias, existió un problema');

@@ -6,13 +6,13 @@ use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Group
+ * GroupCategory
  *
  * @ORM\Entity
- * @ORM\Table(name="group")
- * * @ORM\Entity(repositoryClass="App\Repository\GroupRepository") 
+ * @ORM\Table(name="group_category")
+ * @ORM\Entity(repositoryClass="App\Repository\GroupCategoryRepository") 
  */
-class Group
+class GroupCategory
 {
     /**
      * @var int
@@ -57,6 +57,22 @@ class Group
      * @ORM\Column(name="deleted_at", type="datetime", nullable=true)
      */
     private $deletedAt;
+
+    /**
+     * @ORM\OneToMany(targetEntity="ClientGroup", mappedBy="group_category")
+     * @var \ClientGroup[]
+     **/
+    private $clientGroup;
+
+    /**
+     * Get clientGroup
+     *
+     * @return ClientGroup[]
+     */
+    public function getClientGroups()
+    {
+        return $this->clientGroup;
+    }
 
     /**
      * Get id
@@ -111,7 +127,7 @@ class Group
      *
      * @param string $name
      */
-    public function setLastName(string $name): self
+    public function setName(string $name): self
     {
         $this->name = $name;
 
@@ -121,7 +137,7 @@ class Group
     /**
      * Get name
      */
-    public function getLastName(): string
+    public function getName(): string
     {
         return $this->name;
     }
