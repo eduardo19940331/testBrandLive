@@ -4,9 +4,10 @@
 namespace App\Controller;
 
 use App\Entity\Client;
+use DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ClientController extends Controller
@@ -52,17 +53,26 @@ class ClientController extends Controller
         $email = $request->get('email');
         $description = $request->get('description');
         $gclient = $request->get('gclient');
-        echo '<pre>';
-        print_r($ident);
-        print_r($firstname);
-        print_r($lastname);
-        print_r($email);
-        print_r($description);
-        print_r($gclient);
-        echo '</pre>';
-        die();
+
         $entityManager = $this->getDoctrine()->getManager();
-        $client = [];
+        /** @var Client */
+        $client = new Client();
+        if ($ident) {
+            $client = $entityManager->getRepository(Client::class)->find($ident);
+        }
+
+        $client->setCreated(new DateTime());
+        $client->setFirstName($firstname);
+        $client->setLastName($lastname);
+        $client->setEmail($email);
+        $client->setDescription($description);
+        $client->setEnabled(1);
+        $entityManager->persist($client);
+        $entityManager->flush();
+
+        // foreach ($gclient as $group) {
+        //     $group = 
+        // }
 
         return $this->render('client/new.html.twig', ["client" => $client]);
     }
@@ -70,7 +80,7 @@ class ClientController extends Controller
     /**
      * @Route("/deleted", name="deletedclient")
      */
-    public function deletedAction(Request $request)
+    public function deletedAction(Request $request): JsonResponse
     {
         $entityManager = $this->getDoctrine()->getManager();
         $ident = $request->get('ident');
@@ -84,10 +94,15 @@ class ClientController extends Controller
         $client->setEnabled(0);
         $entityManager->persist($client);
         $entityManager->flush();
+        $nameClient = $client->getFirstName() . " " . $client->getLastName();
 
-        return json_encode([
+        return new JsonResponse([
             "state" => "success",
-            "message" => "El Cliente se ha eliminado correctamente"
+            "message" => "El Cliente <b>$nameClient</b> se ha eliminado correctamente"
         ]);
+    }
+
+    public function showAction(Request $request)
+    {
     }
 }
