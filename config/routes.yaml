@@ -24,3 +24,7 @@ saveclient:
 deletedclient:
     path: /deleted
     defaults: { _controller: 'App\Controller\ClientController::deletedAction' }
+
+showclient:
+    path: /show/{id}
+    defaults: { _controller: 'App\Controller\ClientController::showAction' }

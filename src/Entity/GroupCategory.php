@@ -4,16 +4,15 @@ namespace App\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
-// use App\Repository\ClientRepository;
 
 /**
- * Client
+ * GroupCategory
  *
  * @ORM\Entity
- * @ORM\Table(name="client")
- * @ORM\Entity(repositoryClass="App\Repository\ClientRepository") 
+ * @ORM\Table(name="group_category")
+ * @ORM\Entity(repositoryClass="App\Repository\GroupCategoryRepository") 
  */
-class Client
+class GroupCategory
 {
     /**
      * @var int
@@ -41,37 +40,16 @@ class Client
     /**
      * @var string
      *
-     * @ORM\Column(name="firstname", type="string", length=50, nullable=false)
+     * @ORM\Column(name="name", type="string", length=50, nullable=false)
      */
-    private $firstname = '';
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="lastname", type="string", length=50, nullable=false)
-     */
-    private $lastname = '';
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="email", type="string", length=150, nullable=false)
-     */
-    private $email = '';
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="description", type="string", length=300, nullable=false)
-     */
-    private $description;
+    private $name;
 
     /**
      * @var int
      *
-     * @ORM\Column(name="enabled", type="integer", nullable=false, options={"default"="1"})
+     * @ORM\Column(name="enabled", type="integer", nullable=false)
      */
-    private $enabled = '1';
+    private $enabled;
 
     /**
      * @var \DateTime|null
@@ -80,9 +58,8 @@ class Client
      */
     private $deletedAt;
 
-
     /**
-     * @ORM\OneToMany(targetEntity="ClientGroup", mappedBy="client")
+     * @ORM\OneToMany(targetEntity="ClientGroup", mappedBy="group_category")
      * @var \ClientGroup[]
      **/
     private $clientGroup;
@@ -146,83 +123,23 @@ class Client
     }
 
     /**
-     * Set lastname
+     * Set name
      *
-     * @param string $lastname
+     * @param string $name
      */
-    public function setLastName(string $lastname): self
+    public function setName(string $name): self
     {
-        $this->lastname = $lastname;
+        $this->name = $name;
 
         return $this;
     }
 
     /**
-     * Get lastname
+     * Get name
      */
-    public function getLastName(): string
+    public function getName(): string
     {
-        return $this->lastname;
-    }
-
-    /**
-     * Set firstname
-     *
-     * @param string $firstname
-     */
-    public function setFirstName(string $firstname): self
-    {
-        $this->firstname = $firstname;
-
-        return $this;
-    }
-
-    /**
-     * Get firstname
-     */
-    public function getFirstName(): string
-    {
-        return $this->firstname;
-    }
-
-    /**
-     * Set description
-     *
-     * @param string $description
-     */
-    public function setDescription(string $description): self
-    {
-        $this->description = $description;
-
-        return $this;
-    }
-
-    /**
-     * Get description
-     */
-    public function getDescription(): string
-    {
-        return $this->description;
-    }
-
-    /**
-     * Set email
-     *
-     * @param string $email
-     */
-    public function setEmail($email): self
-    {
-        $this->email = $email;
-
-        return $this;
-    }
-
-    /**
-     * Get email
-     */
-    public function getEmail(): string
-    {
-        return $this->email;
+        return $this->name;
     }
 
     /**
@@ -230,7 +147,7 @@ class Client
      *
      * @param boolean $enabled
      */
-    public function setEnabled($enabled = 1): self
+    public function setEnabled($enabled): self
     {
         $this->enabled = $enabled;
 
@@ -263,10 +180,5 @@ class Client
     public function getDeleted(): DateTime
     {
         return $this->deletedAt;
-    }
-
-    public function getFullName(): string
-    {
-        return $this->lastname . " " . $this->lastname;
     }
 }

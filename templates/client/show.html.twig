@@ -8,41 +8,41 @@
 
 <div class="card text-white col-lg-12" style="padding: 0px">
     <div class="card-header bg-primary">
-        Administrador de Usuarios
+        Datos de Cliente
         <div class="pull-right">
             <a href="{{ path('client') }}" type="button" class="btn btn-sm btn-primary"><i class="fa fa-arrow-left"></i> Todos los Usuarios</a>
         </div>
     </div>
     <div class="card-body text-black">
-        <h5 class="card-title">{{ client|default('') != null ? 'Editar Usuario' : 'Nuevo Usuario' }}</h5>
+        <h5 class="card-title">Datos Ingresados</h5>
         <br>
         <form id="saveClient" action="{{ path('saveclient') }}" method="POST">
             <input type="hidden" id="ident" name="ident" value="{{ client.id|default('') }}" />
             <div class="form-row">
                 <div class="form-group col-md-4">
                     <label for="first_name">Nombre</label>
-                    <input type="text" class="form-control" maxlength="50" id="firstname" name="firstname" value="{{ client.firstname|default('') }}">
+                    <p class="form-control">{{ client.firstname|default('') }}</p>
                 </div>
                 <div class="form-group col-md-4">
                     <label for="lastname">Apellido</label>
-                    <input type="text" class="form-control" maxlength="50" id="lastname" name="lastname" value="{{ client.lastname|default('') }}">
+                    <p class="form-control">{{ client.lastname|default('') }}</p>
                 </div>
                 <div class="form-group col-md-4">
                     <label for="email">Email</label>
-                    <input type="email" class="form-control" maxlength="150" id="email" name="email" value="{{ client.email|default('') }}">
+                    <p class="form-control">{{ client.email|default('') }}</p>
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group col-md-6">
                     <label for="description">Observaciones</label>
-                    <textarea id="description" name="description" class="form-control" maxlength="300" style="resize:none; height: 90px;">{{ client.description|default('') }}</textarea>
+                    <p class="form-control" style="height: 90px;">{{ client.description|default('') }}</p>
                 </div>
                 <div class="form-group col-md-6">
                     <label for="gclient">Grupo de Cliente</label>
                     {% for groupId, groupName in groups %}
                         {% set isSelect = groupId in client.selectGroup|default([]) ? 'checked' %}
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="{{ groupId }}" id="gclient{{ groupId }}" name="gclient[{{ groupId }}]" {{ isSelect }}>
+                            <input class="form-check-input" type="checkbox" value="{{ groupId }}" id="gclient{{ groupId }}" name="gclient[{{ groupId }}]" {{ client.gclient|default(0) == 1 ? 'checked' }}  {{ isSelect }}>
                             <label class="form-check-label" for="gclient{{ groupId }}">
                                 {{ groupName }}
                             </label>
@@ -50,13 +50,12 @@
                     {% endfor %}
                 </div>
             </div>
-            <br>
-            <div class="form-row">
-                <div class="form-group col-md-12">
-                    <button class="bt btn-success btn-sm pull-right btnSave"><i class="fa fa-save"></i> Guardar</button>
-                </div>
-            </div>
         </form>
+    </div>
+    <div class="card-footer bg-primary">
+        <div class="pull-right">
+            <a href="{{ path('client') }}" type="button" class="btn btn-sm btn-primary"><i class="fa fa-arrow-left"></i> Todos los Usuarios</a>
+        </div>
     </div>
 </div>
 
@@ -64,10 +63,6 @@
 
 {% block javascripts %}
 <script>
-    $(".btnSave").keydown(function () {
-        showChargePageLoad(true);
-    });
-
     $("#saveClient").validate({
         rules: {
             firstname: {
@@ -125,7 +120,8 @@
             }
         },
         submitHandler: function(form) {
-            $(form).submit();
+            showChargePageLoad(true);
+            $("#saveClient").submit();
         },
         // set this class to error-labels to indicate valid fields
         success: function(label) {
@@ -134,8 +130,6 @@
         highlight: function(element, errorClass) {
             $(element).parent().next().find("." + errorClass).removeClass("checked");
         }
-    }).ready(function() {
-        showChargePageLoad(true);
     });
 </script>
 {% endblock %}

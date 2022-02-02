@@ -17,10 +17,11 @@
         <table id="table-list-clients" class="table">
             <thead>
                 <tr>
-                    <th class='text-center'>Rut</th>
-                    <th class='text-center'>Nombre</th>
-                    <th class='text-center'>Celular</th>
-                    <th class='text-center'>Acciones</th>
+                    <th class='text-center'>NOMBRE</th>
+                    <th class='text-center'>APELLIDO</th>
+                    <th class='text-center'>EMAIL</th>
+                    <th class='text-center'>GRUPOS</th>
+                    <th class='text-center'>ACCIONES</th>
                 </tr>
             </thead>
             <tbody>
@@ -30,6 +31,7 @@
                         <td class='text-center'>{{ client.firstname|default('') }}</td>
                         <td class='text-center'>{{ client.lastname|default('') }}</td>
                         <td class='text-center'>{{ client.email|default('') }}</td>
+                        <td class='text-center'>{{ client.clientg|default('') }}</td>
                         <td class='text-center'>
                             <a href="{{ path('editclient', {id:client.id}) }}" class="btn btn-sm btn-success btn-edit"><i class="fa fa-edit"></i></a> 
                             <a class="btn btn-sm btn-danger btn-remove" data-ident="{{ client.id }}" data-name="{{ clientName }}"><i class="fa fa-times"></i></a> 
@@ -86,10 +88,10 @@
                 data : { ident : ident },
                 type : 'POST',
                 success : function(json) {
-                    if(json.state == 'success'){
-                        $(`[data-ident='${ident}']`).remove();
+                    if (json.state == "success") {
                         $("#modal-confirm-accion-client").modal('hide');
-                        toastr.success(json.message ?? 'El Cliente se elimino satisfactoriamente', 'Exito!');
+                        $(`[data-ident='${ident}'`).remove();
+                        toast.success(json.message ?? 'Cliente eliminado correctamente', 'Exito!');
                     }
                 },
                 error : function(xhr, status) {

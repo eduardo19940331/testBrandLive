@@ -4,6 +4,8 @@
 namespace App\Controller;
 
 use App\Entity\Client;
+use App\Entity\ClientGroup;
+use App\Entity\GroupCategory;
 use DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,7 +30,10 @@ class ClientController extends Controller
      */
     public function createAction()
     {
-        return $this->render('client/new.html.twig');
+
+        $groups = $this->getOptionsGroups();
+
+        return $this->render('client/new.html.twig', ["groups" => $groups]);
     }
 
     /**
@@ -38,8 +43,25 @@ class ClientController extends Controller
     {
         $entityManager = $this->getDoctrine()->getManager();
         $client = $entityManager->getRepository(Client::class)->find($id);
+        $selectGroup = [];
+        foreach ($client->getClientGroups() as $gc) {
+            if (($gc->getGroup()->getEnabled() && $gc->getEnabled())) {
+                $selectGroup[] = $gc->getGroup()->getId();
+            }
+        }
+        $client->selectGroup = $selectGroup;
+        $groups = $this->getOptionsGroups();
 
-        return $this->render('client/new.html.twig', ["client" => $client]);
+        return $this->render('client/new.html.twig', [
+            "client" => $client,
+            "groups" => $groups
+        ]);
+    }
+
+    private function getOptionsGroups(): array
+    {
+        $entityManager = $this->getDoctrine()->getManager();
+        return $entityManager->getRepository(GroupCategory::class)->getGroupsAsOptions();
     }
 
     /**
@@ -60,7 +82,6 @@ class ClientController extends Controller
         if ($ident) {
             $client = $entityManager->getRepository(Client::class)->find($ident);
         }
-
         $client->setCreated(new DateTime());
         $client->setFirstName($firstname);
         $client->setLastName($lastname);
@@ -70,11 +91,41 @@ class ClientController extends Controller
         $entityManager->persist($client);
         $entityManager->flush();
 
-        // foreach ($gclient as $group) {
-        //     $group = 
-        // }
+        $clientGroupAlter = [];
+        foreach ($gclient as $group) {
+            $group = $entityManager->getRepository(GroupCategory::class)->find($group);
 
-        return $this->render('client/new.html.twig', ["client" => $client]);
+            $clientGroup = $entityManager->getRepository(ClientGroup::class)->findOneBy([
+                "client" => $client->getId(),
+                "group" => $group->getId()
+            ]);
+            if (!$clientGroup) {
+                $clientGroup = new ClientGroup();
+            }
+
+            $clientGroup->setCreated(new DateTime());
+            $clientGroup->setClient($client);
+            $clientGroup->setGroup($group);
+            $clientGroup->setEnabled(1);
+            $clientGroup->setDeleted(null);
+            $entityManager->persist($clientGroup);
+            $entityManager->flush();
+
+            $clientGroupAlter[] = $clientGroup->getId();
+        }
+        $clientGroupsExistent = $client->getClientGroups();
+        if ($clientGroupsExistent) {
+            foreach ($clientGroupsExistent as $clientGroupExist) {
+                if (!in_array($clientGroupExist->getId(), $clientGroupAlter)) {
+                    $clientGroupExist->setDeleted(new DateTime());
+                    $clientGroupExist->setEnabled(0);
+                    $entityManager->persist($clientGroupExist);
+                    $entityManager->flush();
+                }
+            }
+        }
+
+        return $this->redirect($this->generateUrl('showclient', ['id' => $client->getId()]));
     }
 
     /**
@@ -92,6 +143,7 @@ class ClientController extends Controller
             ]);
         }
         $client->setEnabled(0);
+        $client->setDeleted(new DateTime());
         $entityManager->persist($client);
         $entityManager->flush();
         $nameClient = $client->getFirstName() . " " . $client->getLastName();
@@ -102,7 +154,26 @@ class ClientController extends Controller
         ]);
     }
 
-    public function showAction(Request $request)
+    /**
+     * @Route("/show", name="showclient")
+     */
+    public function showAction(string $id)
     {
+        $entityManager = $this->getDoctrine()->getManager();
+        $client = $entityManager->getRepository(Client::class)->find($id);
+        $selectGroup = [];
+        foreach ($client->getClientGroups() as $gc) {
+            if (($gc->getGroup()->getEnabled() && $gc->getEnabled())) {
+                $selectGroup[] = $gc->getGroup()->getId();
+            }
+        }
+        $client->selectGroup = $selectGroup;
+
+        $groups = $this->getOptionsGroups();
+
+        return $this->render('client/show.html.twig', [
+            "client" => $client,
+            "groups" => $groups
+        ]);
     }
 }
