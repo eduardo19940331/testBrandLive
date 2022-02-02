@@ -230,7 +230,7 @@ class Client
      *
      * @param boolean $enabled
      */
-    public function setEnabled($enabled): self
+    public function setEnabled($enabled = 1): self
     {
         $this->enabled = $enabled;
 

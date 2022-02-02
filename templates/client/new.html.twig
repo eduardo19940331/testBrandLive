@@ -53,7 +53,7 @@
             <br>
             <div class="form-row">
                 <div class="form-group col-md-12">
-                    <button class="bt btn-success btn-sm pull-right"><i class="fa fa-save"></i> Guardar</button>
+                    <button class="bt btn-success btn-sm pull-right btnSave"><i class="fa fa-save"></i> Guardar</button>
                 </div>
             </div>
         </form>
@@ -64,6 +64,10 @@
 
 {% block javascripts %}
 <script>
+    $(".btnSave").keydown(function () {
+        showChargePageLoad(true);
+    });
+
     $("#saveClient").validate({
         rules: {
             firstname: {
@@ -121,8 +125,7 @@
             }
         },
         submitHandler: function(form) {
-            showChargePageLoad(true);
-            $("#saveClient").submit();
+            $(form).submit();
         },
         // set this class to error-labels to indicate valid fields
         success: function(label) {
@@ -131,6 +134,8 @@
         highlight: function(element, errorClass) {
             $(element).parent().next().find("." + errorClass).removeClass("checked");
         }
+    }).ready(function() {
+        showChargePageLoad(true);
     });
 </script>
 {% endblock %}

@@ -27,13 +27,14 @@
             <tbody>
                 {% for client in clients %}
                     <tr data-ident="{{ client.id }}">
+                        {% set clientName = client.firstname~' '~client.lastname %}
                         <td class='text-center'>{{ client.firstname|default('') }}</td>
                         <td class='text-center'>{{ client.lastname|default('') }}</td>
                         <td class='text-center'>{{ client.email|default('') }}</td>
                         <td class='text-center'>{{ client.clientg|default('') }}</td>
                         <td class='text-center'>
                             <a href="{{ path('editclient', {id:client.id}) }}" class="btn btn-sm btn-success btn-edit"><i class="fa fa-edit"></i></a> 
-                            <a class="btn btn-sm btn-danger btn-remove" data-ident="{{ client.id }}"><i class="fa fa-times"></i></a> 
+                            <a class="btn btn-sm btn-danger btn-remove" data-ident="{{ client.id }}" data-name="{{ clientName }}"><i class="fa fa-times"></i></a> 
                         </td>
                     </tr>
                 {% endfor %}
@@ -52,7 +53,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <h5 id="textConfirm">¿Esta realmente seguro que desea eliminar el Cliente?</h5>
+                <h5 id="textConfirm">¿Esta realmente seguro que desea eliminar al Cliente?</h5>
                 <input type="hidden" id="identificateDeleted">
             </div>
             <div class="modal-footer">
@@ -72,12 +73,15 @@
         });
 
         $(document).on("click", ".btn-remove", function () {
-            var ident = $(this).data("ident");
+            var ident = $(this).data('ident');
             $("#identificateDeleted").val(ident);
+            var clientName = $(this).data('name');
+            $("#modal-confirm-accion-client #textConfirm").html(`¿Esta realmente seguro que desea eliminar al Cliente <b>${clientName}</b>?`);
             $("#modal-confirm-accion-client").modal();
         });
 
         $("#textButtonConfirm").click(function () {
+            showChargePageLoad(true);
             var ident = $("#identificateDeleted").val();
             $.ajax({
                 url : '{{ path('deletedclient') }}',
@@ -91,10 +95,10 @@
                     }
                 },
                 error : function(xhr, status) {
-                    toast.error('Error!','Disculpe las molestias, existió un problema');
+                    toastr.error('Disculpe las molestias, existió un problema', 'Error!');
                 },
                 complete : function(xhr, status) {
-
+                    showChargePageLoad();
                 }
             });
         });
