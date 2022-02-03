@@ -53,7 +53,7 @@
             <br>
             <div class="form-row">
                 <div class="form-group col-md-12">
-                    <button class="bt btn-success btn-sm pull-right btnSave"><i class="fa fa-save"></i> Guardar</button>
+                    <button class="btn btn-default btn-sm pull-right btnSave"><i class="fa fa-save"></i> Guardar</button>
                 </div>
             </div>
         </form>
@@ -125,6 +125,7 @@
             }
         },
         submitHandler: function(form) {
+            showChargePageLoad(true);
             $(form).submit();
         },
         // set this class to error-labels to indicate valid fields
@@ -134,8 +135,6 @@
         highlight: function(element, errorClass) {
             $(element).parent().next().find("." + errorClass).removeClass("checked");
         }
-    }).ready(function() {
-        showChargePageLoad(true);
     });
 </script>
 {% endblock %}

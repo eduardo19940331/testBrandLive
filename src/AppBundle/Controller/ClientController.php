@@ -30,7 +30,6 @@ class ClientController extends Controller
      */
     public function createAction()
     {
-
         $groups = $this->getOptionsGroups();
 
         return $this->render('client/new.html.twig', ["groups" => $groups]);
@@ -137,7 +136,7 @@ class ClientController extends Controller
         $ident = $request->get('ident');
         $client = $entityManager->getRepository(Client::class)->find($ident);
         if (!$client) {
-            return json_encode([
+            return new JsonResponse([
                 "state" => "error",
                 "message" => "El Cliente no ha sido encontrado en el sistema"
             ]);

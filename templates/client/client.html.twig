@@ -33,6 +33,7 @@
                         <td class='text-center'>{{ client.email|default('') }}</td>
                         <td class='text-center'>{{ client.clientg|default('') }}</td>
                         <td class='text-center'>
+                            <a href="{{ path('showclient', {id:client.id}) }}" class="btn btn-sm btn-default btn-show"><i class="fa fa-eye"></i></a> 
                             <a href="{{ path('editclient', {id:client.id}) }}" class="btn btn-sm btn-success btn-edit"><i class="fa fa-edit"></i></a> 
                             <a class="btn btn-sm btn-danger btn-remove" data-ident="{{ client.id }}" data-name="{{ clientName }}"><i class="fa fa-times"></i></a> 
                         </td>
@@ -68,10 +69,6 @@
 
 {% block javascripts %}
     <script>
-        $(document).ready(function() {
-
-        });
-
         $(document).on("click", ".btn-remove", function () {
             var ident = $(this).data('ident');
             $("#identificateDeleted").val(ident);
