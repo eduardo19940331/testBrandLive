@@ -10,7 +10,7 @@
     <div class="card-header bg-primary">
         Datos de Cliente
         <div class="pull-right">
-            <a href="{{ path('client') }}" type="button" class="btn btn-sm btn-primary"><i class="fa fa-arrow-left"></i> Todos los Usuarios</a>
+            <a href="{{ path('client') }}" type="button" class="btn btn-sm btn-default"><i class="fa fa-arrow-left"></i> Todos los Clientes</a>
         </div>
     </div>
     <div class="card-body text-black">
@@ -42,7 +42,7 @@
                     {% for groupId, groupName in groups %}
                         {% set isSelect = groupId in client.selectGroup|default([]) ? 'checked' %}
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="{{ groupId }}" id="gclient{{ groupId }}" name="gclient[{{ groupId }}]" {{ client.gclient|default(0) == 1 ? 'checked' }}  {{ isSelect }}>
+                            <input class="form-check-input" type="checkbox" {{ isSelect }} onclick="return false;">
                             <label class="form-check-label" for="gclient{{ groupId }}">
                                 {{ groupName }}
                             </label>
@@ -54,7 +54,31 @@
     </div>
     <div class="card-footer bg-primary">
         <div class="pull-right">
-            <a href="{{ path('client') }}" type="button" class="btn btn-sm btn-primary"><i class="fa fa-arrow-left"></i> Todos los Usuarios</a>
+            {% set clientName = client.firstname~' '~client.lastname %}
+            <a type="button" class="btn btn-sm btn-danger btn-remove" data-name="{{ clientName }}"><i class="fa fa-times"></i> Eliminar Cliente</a>
+            <a href="{{ path('editclient', {id: client.id}) }}" type="button" class="btn btn-sm btn-success"><i class="fa fa-edit"></i> Editar Cliente</a>
+            <a href="{{ path('client') }}" type="button" class="btn btn-sm btn-default"><i class="fa fa-arrow-left"></i> Todos los Cliente</a>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="modal-confirm-accion-client" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="titleConfirm">Eliminación de Cliente</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h5 id="textConfirm">¿Esta realmente seguro que desea eliminar al Cliente?</h5>
+                <input type="hidden" id="identificateDeleted" value="{{ client.id }}">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="button" id="textButtonConfirm" class="btn btn-primary btn-acept-remove-client">Si, Eliminar</button>
+            </div>
         </div>
     </div>
 </div>
@@ -63,73 +87,38 @@
 
 {% block javascripts %}
 <script>
-    $("#saveClient").validate({
-        rules: {
-            firstname: {
-                required: true,
-                minlength: 3
-            },
-            lastname: {
-                required: true,
-                minlength: 3
-            },
-            email: {
-                required: true,
-                email: true
-            },
-            description: {
-                required: true
-            }
-        },
-        messages: {
-            firstname: {
-                required: "Ingrese el Nombre Valido",
-                minlength: jQuery.validator.format("Debe Ingresar mas de {0} caracteres")
-            },
-            lastname: {
-                required: "Ingrese un Apellido Valido",
-                minlength: jQuery.validator.format("Debe Ingresar mas de {0} caracteres")
-            },
-            email: {
-                required: "Ingrese Correo Valido",
-                minlength: "Ingrese Correo Valido"
-            },
-            description: {
-                required: "Ingrese Número de Telefono"
-            }
-        },
-        // the errorPlacement has to take the table layout into account
-        errorPlacement: function(error, element) {
-            var hasError = 0;
-            if (!element.val()) {
-                if (element.is(":radio")) {
-                    error.appendTo(element.parent().next().next());
-                    hasError++;
-                } else if (element.is(":checkbox")) {
-                    error.appendTo(element.next());
-                    hasError++;
-                } else {
-                    error.appendTo(element.parent());
-                    hasError++;
+    $(document).on("click", ".btn-remove", function () {
+        var clientName = $(this).data('name');
+        $("#modal-confirm-accion-client #textConfirm").html(`¿Esta realmente seguro que desea eliminar al Cliente <b>${clientName}</b>?`);
+        $("#modal-confirm-accion-client").modal();
+    });
+
+    $("#textButtonConfirm").click(function () {
+        showChargePageLoad(true);
+        var ident = $("#identificateDeleted").val();
+        $.ajax({
+            url : '{{ path('deletedclient') }}',
+            data : { ident : ident },
+            type : 'POST',
+            success : function(json) {
+                if (json.state == "success") {
+                    $("#modal-confirm-accion-client").modal('hide');
+                    $(`[data-ident='${ident}'`).remove();
+                    toastr.success(json.message ?? 'Cliente eliminado correctamente', 'Exito!');
+                    setTimeout(function () {
+                        window.location.replace('{{ path('client') }}');
+                    }, 5000);
                 }
+                if(json.state == 'error') {
+                    showChargePageLoad();
+                    toastr.error(json.message ?? 'Disculpe las molestias, existió un problema', 'Error!');
+                }
+            },
+            error : function(xhr, status) {
+                showChargePageLoad();
+                toastr.error('Disculpe las molestias, existió un problema', 'Error!');
             }
-            if (hasError > 0) {
-                error.addClass("input-text-has-error");
-                toastr.error("Favor completar todos los campos", "Ups!");
-                element.addClass('hasError');
-            }
-        },
-        submitHandler: function(form) {
-            showChargePageLoad(true);
-            $("#saveClient").submit();
-        },
-        // set this class to error-labels to indicate valid fields
-        success: function(label) {
-            label.html("&nbsp;").addClass("checked");
-        },
-        highlight: function(element, errorClass) {
-            $(element).parent().next().find("." + errorClass).removeClass("checked");
-        }
+        });
     });
 </script>
 {% endblock %}

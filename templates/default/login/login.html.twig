@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    {# <meta name="csrf-token" content="{{ csrf_token() }}"> #}
+    <title>Login Test BrandLive</title>
+    <!-- Bootstrap 3.3.7 -->
+    <link rel="stylesheet" href="{{ asset('bootstrap4/css/bootstrap.min.css') }}">
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+</head>
+<body>
+    <style>
+        .loginform{
+            padding: 20px 10%;
+            box-sizing: border-box;
+            position: relative;
+            display: flex;
+            margin: 40px 0 0;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .loginrightpage{
+            background-image: url("img/login_image_computer.png");
+        }
+    </style>
+    <div class="row primary">
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            <div class="loginform">
+                <h1 class="mt-4 mb-3 text-center">TestBrandLive
+                    <small>Login de Usuario</small>
+                </h1>
+                <br>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <form action="{{ path('login') }}" method="post">
+                                    <div class="form-row">
+                                        <table style="width:100%;">
+                                            <tr>
+                                                <td class="text-right">
+                                                    <label for="username">Usuario:</label>
+                                                </td>
+                                                <td>
+                                                    <input type="text" id="username" name="_username form-control" value=""/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-right">
+                                                    <label for="password">Contraseña:</label>
+                                                </td>
+                                                <td>
+                                                    <input type="password" id="password" name="_password form-control"/>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="form-row">
+                                        <button type="submit" class="btn btn-md btn-secondary pull-right">Ingresar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="loginrightpage col-md-6 col-sm-6 col-xs-12">
+        </div>
+    </div>
+    <!-- jQuery 3 -->
+    <script src="{{ asset('js/jquery.min.js') }}"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function(){
+
+            var height = $(window).height();
+            $('.primary').height(height);
+        });
+
+</script>
+</body>
+</html>
