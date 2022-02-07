@@ -117,7 +117,28 @@
             <!-- Main content -->
             <div class="content">
                 <div class="card-body">
-                    {% block body %}{% endblock %}
+                    {% block body %}
+                        <div class="container">
+                            <div style="margin-bottom: 6%;">
+                                <h1 class="mt-4 mb-3 text-center">TestBrandLive
+                                    <small>Bienvenidos</small>
+                                </h1>
+                            </div>
+                            <div class="row primary">
+                                <div class="col-md-6 col-sm-6 col-xs-6">
+                                    <p>
+                                        Bienvenido <b>{{ app.user.firstname~' '~app.user.lastname }}</b>
+                                    </p><p><b>TestBrandLive</b> le permitirá a usted y su empresa llevar el registro y checkeo de sus
+                                        <b>Clientes</b> e iteractuar con ellos, prontamente más novedades.
+                                    </p>
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-xs-6">
+                                    <p>Al costado izquierdo encontramos el menú de acciones, el módulo clientes permite
+                                    ingresar, modificar, eliminar y listar los diferentes clientes que tenga en sistema</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endblock %}
                 </div>
             </div>
             <!-- /.content -->

@@ -12,6 +12,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/panel", name="panel_")
+ */
 class ClientController extends Controller
 {
     /**
@@ -19,10 +22,23 @@ class ClientController extends Controller
      */
     public function indexAction()
     {
-        $entityManager = $this->getDoctrine()->getManager();
-        $clients = $entityManager->getRepository(Client::class)->getAllClient();
 
-        return $this->render('client/client.html.twig', ["clients" => $clients]);
+        return $this->render('client/client.html.twig');
+    }
+
+    /**
+     * @Route("/search", name="searchClient")
+     */
+    public function searchAction(Request $request): JsonResponse
+    {
+        $search = $request->get('search', "");
+        $entityManager = $this->getDoctrine()->getManager();
+        $data = $entityManager->getRepository(Client::class)->getAllClient($search);
+
+        return new JsonResponse([
+            "state" => "success",
+            "data" => $data
+        ]);
     }
 
     /**

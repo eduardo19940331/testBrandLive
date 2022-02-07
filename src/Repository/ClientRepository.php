@@ -10,9 +10,17 @@ class ClientRepository extends EntityRepository
     /**
      * Obtiene todos los Clientes con el enambled = 1
      */
-    public function getAllClient(): array
+    public function getAllClient($search = ""): array
     {
         $manager = $this->getEntityManager();
+
+        $where = "";
+        if ($search !== "") {
+            $where = " AND (c.firstname LIKE '%$search%'
+                        OR c.email LIKE '%$search%'
+                        OR c.lastname LIKE '%$search%'
+                        OR c.description LIKE '%$search%') ";
+        }
 
         $query = "SELECT
                     c.id,
@@ -25,6 +33,7 @@ class ClientRepository extends EntityRepository
                     ORDER BY gc.`name`) AS clientg
                 FROM client c
                 WHERE c.enabled = 1
+                    $where
                 ORDER BY c.id DESC";
         $conn = $manager->getConnection();
         $stmt = $conn->prepare($query);

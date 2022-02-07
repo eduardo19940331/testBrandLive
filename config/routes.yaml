@@ -16,25 +16,29 @@ home:
 # client
 
 client:
-    path: /index
+    path: /panel/index
     defaults: { _controller: 'App\Controller\ClientController::indexAction' }
 
+searchClient:
+    path: /panel/search
+    defaults: { _controller: 'App\Controller\ClientController::searchAction' }
+
 createclient:
-    path: /create
+    path: /panel/create
     defaults: { _controller: 'App\Controller\ClientController::createAction' }
 
 editclient:
-    path: /edit/{id}
+    path: /panel/edit/{id}
     defaults: { _controller: 'App\Controller\ClientController::editAction' }
 
 saveclient:
-    path: /save
+    path: /panel/save
     defaults: { _controller: 'App\Controller\ClientController::saveAction' }
 
 deletedclient:
-    path: /deleted
+    path: /panel/deleted
     defaults: { _controller: 'App\Controller\ClientController::deletedAction' }
 
 showclient:
-    path: /show/{id}
+    path: /panel/show/{id}
     defaults: { _controller: 'App\Controller\ClientController::showAction' }
