@@ -3,7 +3,11 @@
 # login
 login:
     path: /login
-    defaults: { _controller: 'App\Controller\DefaultController::loginAction' }
+    defaults: { _controller: 'App\Controller\SecurityController::loginAction' }
+
+logout:
+    path: /logout
+    defaults: { _controller: 'App\Controller\SecurityController::logoutAction' }
 
 home:
     path: /

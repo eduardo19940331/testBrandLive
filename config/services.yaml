@@ -22,9 +22,18 @@ services:
 
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
-    # App\Controller\:
-    #     resource: '../src/Controller'
-    #     tags: ['controller.service_arguments']
-
+    App\Controller\:
+        resource: '../src/Controller'
+        tags: ['controller.service_arguments']
+    # App\AppBundle\Services\:
+    #     reource: '../src/AppBundle/Services/'
+    # src/AppBundle/Services/SecService.php
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    App\Controller\SecurityController:
+        public: true
+        bind:
+            $authenticationUtils: '@security.authentication_utils'
+        # class: '..\src\App\Controller\SecurityController'
+        arguments: ['@security.authentication_utils']

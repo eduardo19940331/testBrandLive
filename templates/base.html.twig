@@ -66,13 +66,11 @@
                     <span class="sr-only">Toggle navigation</span>
                 </a>
                 <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Este es el nombre del Usuario
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButtonUserOptionsAction" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {{ app.user.firstname~' '~app.user.lastname }}
                     </button>
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                        <a class="dropdown-item" href="#">Action</a>
-                        <a class="dropdown-item" href="#">Another action</a>
-                        <a class="dropdown-item" href="#">Something else here</a>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButtonUserOptionsAction">
+                        <a class="dropdown-item" href="{{ path('logout') }}">Salir</a>
                     </div>
                 </div>
             </nav>
@@ -274,6 +272,16 @@
                 }
             };
         }
+
+        $(document).on("click", "#dropdownMenuButtonUserOptionsAction", function () {
+            console.log($(this));
+            if ($("#dropdownMenuButtonUserOptionsAction").closest(".dropdown").hasClass("open")) {
+                $(this).closest(".dropdown").find(".dropdown-menu").show();
+            }else{
+                $(this).closest(".dropdown").find(".dropdown-menu").hide();
+            }
+            $(this).find(".dropdown-menu").show();
+        });
     </script>
     {% block javascripts %}{% endblock %}
 </body>
