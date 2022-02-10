@@ -55,7 +55,7 @@ class ClientController extends Controller
     }
 
     /**
-     * Funcion Crea un formulario para el registro de Clientes
+     * Función Crea un formulario para el registro y edición de Clientes
      */
     private function makeCreateForm(Client $client)
     {
@@ -70,7 +70,6 @@ class ClientController extends Controller
         return $form;
     }
 
-
     /**
      * @Route("/edit", name="editclient")
      */
@@ -79,26 +78,9 @@ class ClientController extends Controller
         $entityManager = $this->getDoctrine()->getManager();
         $client = $entityManager->getRepository(Client::class)->find($id);
 
-        $form = $this->makeEditForm($client);
+        $form = $this->makeCreateForm($client);
 
         return $this->render('client/new.html.twig', ['form' => $form->createView()]);
-    }
-
-    /**
-     * Funcion Crea un formulario para el registro de Clientes
-     */
-    private function makeEditForm(Client $client)
-    {
-        $groupsOptions = $this->getOptionsGroups();
-
-        $form = $this->createForm(ClientType::class, $client, [
-            'action' => $this->generateUrl('saveclient'),
-            'method' => 'POST',
-            'id' => $client->getId(),
-            'groupsc' => $groupsOptions
-        ]);
-
-        return $form;
     }
 
     private function getOptionsGroups(): array

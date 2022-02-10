@@ -57,7 +57,7 @@ class ClientType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Client::class,
             'groupsc' => [],
-            'id' => 0
+            // 'id' => 0
         ]);
     }
 }
