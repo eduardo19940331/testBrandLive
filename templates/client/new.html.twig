@@ -16,47 +16,49 @@
     <div class="card-body text-black">
         <h5 class="card-title">{{ client|default('') != null ? 'Editar Usuario' : 'Nuevo Usuario' }}</h5>
         <br>
-        <form id="saveClient" action="{{ path('saveclient') }}" method="POST">
-            <input type="hidden" id="ident" name="ident" value="{{ client.id|default('') }}" />
+        {{ form_start(form, { 'attr':{'role':'form', 'id':'saveClient'} }) }}
+            {{ form_widget(form.id) }}
             <div class="form-row">
                 <div class="form-group col-md-4">
-                    <label for="first_name">Nombre</label>
-                    <input type="text" class="form-control" maxlength="50" id="firstname" name="firstname" value="{{ client.firstname|default('') }}">
+                    {{ form_label(form.firstname) }}
+                    {{ form_widget(form.firstname, {'attr': {'class':'form-control','maxlength':'50'}}) }}
+                    {{ form_errors(form.firstname) }}
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="lastname">Apellido</label>
-                    <input type="text" class="form-control" maxlength="50" id="lastname" name="lastname" value="{{ client.lastname|default('') }}">
+                    {{ form_label(form.lastname) }}
+                    {{ form_widget(form.lastname, {'attr': {'class':'form-control','maxlength':'50'}}) }}
+                    {{ form_errors(form.lastname) }}
                 </div>
                 <div class="form-group col-md-4">
-                    <label for="email">Email</label>
-                    <input type="email" class="form-control" maxlength="150" id="email" name="email" value="{{ client.email|default('') }}">
+                    {{ form_label(form.email) }}
+                    {{ form_widget(form.email, {'attr': {'class':'form-control','maxlength':'50'}}) }}
+                    {{ form_errors(form.email) }}
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group col-md-6">
-                    <label for="description">Observaciones</label>
-                    <textarea id="description" name="description" class="form-control" maxlength="300" style="resize:none; height: 90px;">{{ client.description|default('') }}</textarea>
+                    {{ form_label(form.description) }}
+                    {{ form_widget(form.description, {'attr': {'class':'form-control','maxlength':'300','style':'resize:none; height: 90px;'}}) }}
+                    {{ form_errors(form.description) }}
                 </div>
                 <div class="form-group col-md-6">
-                    <label for="gclient">Grupo de Cliente</label>
-                    {% for groupId, groupName in groups %}
-                        {% set isSelect = groupId in client.selectGroup|default([]) ? 'checked' %}
+                    {{ form_label(form.clientGroup) }}
+                    {% for field in form.clientGroup %}
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="{{ groupId }}" id="gclient{{ groupId }}" name="gclient[{{ groupId }}]" {{ isSelect }}>
-                            <label class="form-check-label" for="gclient{{ groupId }}">
-                                {{ groupName }}
-                            </label>
+                        {{ form_widget(field) }}
+                        {{ form_label(field) }}
                         </div>
                     {% endfor %}
+                    {{ form_errors(form.clientGroup) }}
                 </div>
             </div>
             <br>
             <div class="form-row">
                 <div class="form-group col-md-12">
-                    <button class="btn btn-default btn-sm pull-right btnSave"><i class="fa fa-save"></i> Guardar</button>
+                    <button type="submit" class="btn btn-default btn-sm pull-right btnSave" onclick=""><i class="fa fa-save"></i> Guardar</button>
                 </div>
             </div>
-        </form>
+        {{ form_end(form) }}
     </div>
 </div>
 
@@ -64,77 +66,102 @@
 
 {% block javascripts %}
 <script>
-    $(".btnSave").keydown(function () {
+    $(".btnSave").click(function () {
+        console.log("pulsa");
         showChargePageLoad(true);
     });
-
-    $("#saveClient").validate({
-        rules: {
-            firstname: {
-                required: true,
-                minlength: 3
-            },
-            lastname: {
-                required: true,
-                minlength: 3
-            },
-            email: {
-                required: true,
-                email: true
-            },
-            description: {
-                required: true
-            }
-        },
-        messages: {
-            firstname: {
-                required: "Ingrese el Nombre Valido",
-                minlength: jQuery.validator.format("Debe Ingresar mas de {0} caracteres")
-            },
-            lastname: {
-                required: "Ingrese un Apellido Valido",
-                minlength: jQuery.validator.format("Debe Ingresar mas de {0} caracteres")
-            },
-            email: {
-                required: "Ingrese Correo Valido",
-                minlength: "Ingrese Correo Valido"
-            },
-            description: {
-                required: "Ingrese Número de Telefono"
-            }
-        },
-        // the errorPlacement has to take the table layout into account
-        errorPlacement: function(error, element) {
-            var hasError = 0;
-            if (!element.val()) {
-                if (element.is(":radio")) {
-                    error.appendTo(element.parent().next().next());
-                    hasError++;
-                } else if (element.is(":checkbox")) {
-                    error.appendTo(element.next());
-                    hasError++;
-                } else {
-                    error.appendTo(element.parent());
-                    hasError++;
+    $(document).ready(function () {
+        $("#saveClient").validate({
+            rules: {
+                firstname: {
+                    required: true,
+                    minlength: 3
+                },
+                lastname: {
+                    required: true,
+                    minlength: 3
+                },
+                email: {
+                    required: true,
+                    email: true,
+                    minlength: 5
+                },
+                description: {
+                    required: true,
+                    minlength: 3
+                },
+                "client[clientGroup][]": {
+                    required: true,
+                    minlength: 1
                 }
+            },
+            messages: {
+                firstname: {
+                    required: "Ingrese el Nombre",
+                    minlength: jQuery.validator.format("Debe Ingresar mas de {0} caracteres")
+                },
+                lastname: {
+                    required: "Ingrese un Apellido",
+                    minlength: jQuery.validator.format("Debe Ingresar mas de {0} caracteres")
+                },
+                email: {
+                    required: "Ingrese un Email",
+                    minlength: jQuery.validator.format("Debe Ingresar mas de {0} caracteres"),
+                    email: "Ingrese un correo valido"
+                },
+                description: {
+                    required: "Ingrese una Observación",
+                    minlength: jQuery.validator.format("Debe Ingresar mas de {0} caracteres")
+                },
+                "client[clientGroup][]": {
+                    required: "Seleccione un Grupo",
+                    minlength: jQuery.validator.format("Debe Seleccionar mas de {0} grupo")
+                }
+            },
+            // the errorPlacement has to take the table layout into account
+            errorPlacement: function(error, element) {
+                var hasError = 0;
+                if (!element.val()) {
+                    if (element.is(":radio")) {
+                        error.appendTo(element.parent().next().next());
+                        hasError++;
+                    } else {
+                        error.appendTo(element.parent());
+                        hasError++;
+                    }
+                }
+                if (element.is(":checkbox")) {
+                    hasError = 1;
+                    $("[name='client[clientGroup][]']").each(function (i, check) {
+                        if ($(check).is(':checked')) {
+                            hasError--;
+                        }
+                    });
+                    error.appendTo(element.closest(".form-group"));
+                }
+                if (hasError > 0) {
+                    $(element).closest(".form-group").addClass("input-text-has-error");
+                    var nameField = $(element).closest(".form-group").find('label').first().text();
+                    error.addClass("input-text-has-error");
+                    toastr.error("Favor ingrese datos en el campo <b>" + nameField+"</b>", "Ups!");
+                    element.addClass('hasError');
+                }
+                showChargePageLoad();
+            },
+            submitHandler: function(form) {
+                showChargePageLoad(true);
+                $(form).submit();
+            },
+            // set this class to error-labels to indicate valid fields
+            success: function(label) {
+                $(label).closest(".form-group").removeClass("input-text-has-error");
+                $(label).closest(".form-group").find('.hasError').removeClass("hasError");
+                label.html("&nbsp;").addClass("checked");
+            },
+            highlight: function(element, errorClass) {
+                $(element).parent().next().find("." + errorClass).removeClass("checked");
             }
-            if (hasError > 0) {
-                error.addClass("input-text-has-error");
-                toastr.error("Favor completar todos los campos", "Ups!");
-                element.addClass('hasError');
-            }
-        },
-        submitHandler: function(form) {
-            showChargePageLoad(true);
-            $(form).submit();
-        },
-        // set this class to error-labels to indicate valid fields
-        success: function(label) {
-            label.html("&nbsp;").addClass("checked");
-        },
-        highlight: function(element, errorClass) {
-            $(element).parent().next().find("." + errorClass).removeClass("checked");
-        }
+        });
     });
 </script>
 {% endblock %}

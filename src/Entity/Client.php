@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\Common\Collections\ArrayCollection;
 // use App\Repository\ClientRepository;
 
 /**
@@ -42,6 +44,13 @@ class Client
      * @var string
      *
      * @ORM\Column(name="firstname", type="string", length=50, nullable=false)
+     * @Assert\NotBlank
+     * @Assert\Length(
+     *      min = 3,
+     *      max = 50,
+     *      minMessage = "El nombre debe tener un minimo {{ limit }} caracteres",
+     *      maxMessage = "El nombre debe tener un maximo {{ limit }} caracteres"
+     * )
      */
     private $firstname = '';
 
@@ -49,6 +58,13 @@ class Client
      * @var string
      *
      * @ORM\Column(name="lastname", type="string", length=50, nullable=false)
+     * @Assert\NotBlank
+     * @Assert\Length(
+     *      min = 3,
+     *      max = 50,
+     *      minMessage = "El apellido debe tener un minimo {{ limit }} caracteres",
+     *      maxMessage = "El apellido debe tener un maximo {{ limit }} caracteres"
+     * )
      */
     private $lastname = '';
 
@@ -56,6 +72,14 @@ class Client
      * @var string
      *
      * @ORM\Column(name="email", type="string", length=150, nullable=false)
+     * @Assert\NotBlank
+     * @Assert\Length(
+     *      min = 5,
+     *      max = 150,
+     *      minMessage = "El email debe tener un minimo {{ limit }} caracteres",
+     *      maxMessage = "El email debe tener un maximo {{ limit }} caracteres"
+     * )
+     * @Assert\Email
      */
     private $email = '';
 
@@ -63,6 +87,13 @@ class Client
      * @var string
      *
      * @ORM\Column(name="description", type="string", length=300, nullable=false)
+     * @Assert\NotBlank
+     * @Assert\Length(
+     *      min = 5,
+     *      max = 150,
+     *      minMessage = "La descripción debe tener un minimo {{ limit }} caracteres",
+     *      maxMessage = "La descripción debe tener un maximo {{ limit }} caracteres"
+     * )
      */
     private $description;
 
@@ -82,8 +113,8 @@ class Client
 
 
     /**
-     * @ORM\OneToMany(targetEntity="ClientGroup", mappedBy="client")
-     * @var \ClientGroup[]
+     * @ORM\OneToMany(targetEntity="ClientGroup", mappedBy="client", cascade={"persist"})
+     *  @var ArrayCollection<int,ClientGroup>
      **/
     private $clientGroup;
 
@@ -94,13 +125,86 @@ class Client
      */
     public function getClientGroups()
     {
-        return $this->clientGroup;
+        $data = [];
+        $clientGroup = $this->clientGroup !== null ? $this->clientGroup->toArray() : [];
+        foreach ($clientGroup as $cg) {
+            $data[] = $cg;
+        }
+        return $data;
+    }
+
+    /**
+     * Get clientGroup
+     *
+     * @return ClientGroup[]
+     */
+    public function getClientGroup()
+    {
+        $data = [];
+        $clientGroup = $this->clientGroup !== null ? $this->clientGroup->toArray() : [];
+        foreach ($clientGroup as $cg) {
+            if ($cg->getEnabled() == 1 && $cg->getGroup()->getEnabled() == 1) {
+                $data[] = $cg->getGroup();
+            }
+        }
+        return $data;
+    }
+
+    public function setClientGroup($clientGroups)
+    {
+        $groupsExist = [];
+        foreach ($this->getClientGroups() as $clientGroupExist) {
+            $clientGroupExist->setEnabled(1);
+            $clientGroupExist->setDeleted(null);
+            $this->clientGroup[] = $clientGroupExist;
+            $groupsExist[$clientGroupExist->getGroup()->getId()] =
+                $clientGroupExist->getGroup()->getId();
+        }
+        foreach ($clientGroups as $cg) {
+            if (!in_array($cg->getId(), $groupsExist)) {
+                $ClientGroupEntity = new ClientGroup();
+                $ClientGroupEntity->setCreated(new DateTime());
+                $ClientGroupEntity->setClient($this);
+                $ClientGroupEntity->setGroup($cg);
+                $ClientGroupEntity->setEnabled(1);
+
+                $this->clientGroup[] = $ClientGroupEntity;
+            }
+            if (in_array($cg->getId(), $groupsExist)) {
+                unset($groupsExist[$cg->getId()]);
+            }
+        }
+        if ($groupsExist) {
+            foreach ($this->getClientGroups() as $clientGroupExist) {
+                if (in_array($clientGroupExist->getGroup()->getId(), $groupsExist)) {
+                    $clientGroupExist->setEnabled(0);
+                    $clientGroupExist->setDeleted(new DateTime());
+                    $this->clientGroup[] = $clientGroupExist;
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set id
+     * 
+     * @return int|null
+     */
+    public function setId($id): self
+    {
+        $this->id = $id;
+
+        return $this;
     }
 
     /**
      * Get id
+     * 
+     * @return int|null
      */
-    public function getId(): int
+    public function getId()
     {
         return $this->id;
     }
@@ -199,8 +303,10 @@ class Client
 
     /**
      * Get description
+     * 
+     * @return string|null
      */
-    public function getDescription(): string
+    public function getDescription()
     {
         return $this->description;
     }
