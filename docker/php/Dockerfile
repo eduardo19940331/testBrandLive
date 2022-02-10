@@ -1,15 +1,15 @@
 FROM php:7.4-fpm
 
-ARG UID
-EXPOSE $UID
+# ARG UID
+# EXPOSE $UID
 
-RUN adduser -u ${UID} --disabled-password --gecos "" appuser
-RUN mkdir /home/appuser/.ssh
-RUN chown -R appuser:appuser /home/appuser/
-RUN echo "StrictHostKeyChecking no" >> /home/appuser/.ssh/config
-RUN echo "export COLUMNS=300" >> /home/appuser/.bashrc
-RUN echo "alias sf=/appdata/www/bin/console" >> /home/appuser/.bashrc
-RUN echo "alias ll=ls -ltr" >> /home/appuser/.bashrc
+# RUN adduser -u ${UID} --disabled-password --gecos "" appuser
+# RUN mkdir /home/appuser/.ssh
+# RUN chown -R appuser:appuser /home/appuser/
+# RUN echo "StrictHostKeyChecking no" >> /home/appuser/.ssh/config
+# RUN echo "export COLUMNS=300" >> /home/appuser/.bashrc
+# RUN echo "alias sf=/appdata/www/bin/console" >> /home/appuser/.bashrc
+# RUN echo "alias ll=ls -ltr" >> /home/appuser/.bashrc
 
 COPY ./php.ini /usr/local/etc/php/php.ini
 
@@ -27,7 +27,7 @@ RUN composer self-update
 # WKHTMLTOX:
 ###########################################################################
 RUN wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.stretch_amd64.deb \
- && apt install -y ./wkhtmltox_0.12.5-1.stretch_amd64.deb
+    && apt install -y ./wkhtmltox_0.12.5-1.stretch_amd64.deb
 
 RUN wget https://cs.symfony.com/download/php-cs-fixer-v2.phar -O php-cs-fixer
 RUN chmod a+x php-cs-fixer
