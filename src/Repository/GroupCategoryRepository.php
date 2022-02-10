@@ -26,4 +26,17 @@ class GroupCategoryRepository extends EntityRepository
 
         return $groupOptions;
     }
+
+    public function gepOptionsGroups(): array
+    {
+        $entityManager = $this->getEntityManager();
+        $query = $entityManager->createQuery(
+            'SELECT gc
+            FROM App:GroupCategory gc
+            WHERE gc.enabled = 1
+            ORDER BY gc.name ASC'
+        );
+
+        return $query->getResult();
+    }
 }

@@ -117,7 +117,37 @@
             <!-- Main content -->
             <div class="content">
                 <div class="card-body">
-                    {% block body %}{% endblock %}
+                    {% block body %}
+                        <div class="container">
+                            <div style="margin-bottom: 6%;">
+                                <h1 class="mt-4 mb-3 text-center">TestBrandLive
+                                    <small>Bienvenidos</small>
+                                </h1>
+                            </div>
+                            <div class="row primary">
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <h2>
+                                        Bienvenido <b>{{ app.user.firstname~' '~app.user.lastname }}</b>.
+                                    </h2>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row primary">
+                                <div class="col-md-6 col-sm-6 col-xs-6">
+                                    <h5><b>TestBrandLive</b> le permitirá a usted y su empresa llevar el registro y checkeo de sus
+                                        <b>Clientes</b> e interactuar con ellos, prontamente más novedades.
+                                    <br /><br />Esperamos responder a tus solicitudes, ante cualquier evento ponte en contacto con nosotros.
+                                    </h5>
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-xs-6">
+                                    <h5>Al costado izquierdo encontramos el menú de acciones, al aperturar el módulo <b>Dashboard</b> aparecerá un sub menú:
+                                    <br /><br /><b><i class="fa fa-users"></i>Clientes:</b> El módulo clientes permite
+                                    ingresar, modificar, eliminar y listar los diferentes clientes que tenga en sistema, además de agruparlos por las diferentes
+                                    categorías de grupos que posee <b>TestBrandLive</b>.</h5>
+                                </div>
+                            </div>
+                        </div>
+                    {% endblock %}
                 </div>
             </div>
             <!-- /.content -->

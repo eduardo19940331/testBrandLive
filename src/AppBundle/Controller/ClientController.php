@@ -4,14 +4,19 @@
 namespace App\Controller;
 
 use App\Entity\Client;
-use App\Entity\ClientGroup;
 use App\Entity\GroupCategory;
 use DateTime;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Form\ClientType;
+use Exception;
+use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @Route("/panel", name="panel_")
+ */
 class ClientController extends Controller
 {
     /**
@@ -19,10 +24,23 @@ class ClientController extends Controller
      */
     public function indexAction()
     {
-        $entityManager = $this->getDoctrine()->getManager();
-        $clients = $entityManager->getRepository(Client::class)->getAllClient();
 
-        return $this->render('client/client.html.twig', ["clients" => $clients]);
+        return $this->render('client/client.html.twig');
+    }
+
+    /**
+     * @Route("/search", name="searchClient")
+     */
+    public function searchAction(Request $request): JsonResponse
+    {
+        $search = $request->get('search', "");
+        $entityManager = $this->getDoctrine()->getManager();
+        $data = $entityManager->getRepository(Client::class)->getAllClient($search);
+
+        return new JsonResponse([
+            "state" => "success",
+            "data" => $data
+        ]);
     }
 
     /**
@@ -30,10 +48,28 @@ class ClientController extends Controller
      */
     public function createAction()
     {
-        $groups = $this->getOptionsGroups();
+        $client = new Client();
+        $form = $this->makeCreateForm($client);
 
-        return $this->render('client/new.html.twig', ["groups" => $groups]);
+        return $this->render('client/new.html.twig', ['form' => $form->createView()]);
     }
+
+    /**
+     * Funcion Crea un formulario para el registro de Clientes
+     */
+    private function makeCreateForm(Client $client)
+    {
+        $groupsOptions = $this->getOptionsGroups();
+
+        $form = $this->createForm(ClientType::class, $client, [
+            'action' => $this->generateUrl('saveclient'),
+            'method' => 'POST',
+            'groupsc' => $groupsOptions
+        ]);
+
+        return $form;
+    }
+
 
     /**
      * @Route("/edit", name="editclient")
@@ -42,86 +78,67 @@ class ClientController extends Controller
     {
         $entityManager = $this->getDoctrine()->getManager();
         $client = $entityManager->getRepository(Client::class)->find($id);
-        $selectGroup = [];
-        foreach ($client->getClientGroups() as $gc) {
-            if (($gc->getGroup()->getEnabled() && $gc->getEnabled())) {
-                $selectGroup[] = $gc->getGroup()->getId();
-            }
-        }
-        $client->selectGroup = $selectGroup;
-        $groups = $this->getOptionsGroups();
 
-        return $this->render('client/new.html.twig', [
-            "client" => $client,
-            "groups" => $groups
+        $form = $this->makeEditForm($client);
+
+        return $this->render('client/new.html.twig', ['form' => $form->createView()]);
+    }
+
+    /**
+     * Funcion Crea un formulario para el registro de Clientes
+     */
+    private function makeEditForm(Client $client)
+    {
+        $groupsOptions = $this->getOptionsGroups();
+
+        $form = $this->createForm(ClientType::class, $client, [
+            'action' => $this->generateUrl('saveclient'),
+            'method' => 'POST',
+            'id' => $client->getId(),
+            'groupsc' => $groupsOptions
         ]);
+
+        return $form;
     }
 
     private function getOptionsGroups(): array
     {
         $entityManager = $this->getDoctrine()->getManager();
-        return $entityManager->getRepository(GroupCategory::class)->getGroupsAsOptions();
+        return $entityManager->getRepository(GroupCategory::class)->gepOptionsGroups();
     }
 
     /**
      * @Route("/save", name="saveclient")
+     * @ParamConverter("id", class="Appb:Client")
      */
     public function saveAction(Request $request)
     {
-        $ident = $request->get('ident');
-        $firstname = $request->get('firstname');
-        $lastname = $request->get('lastname');
-        $email = $request->get('email');
-        $description = $request->get('description');
-        $gclient = $request->get('gclient');
-
         $entityManager = $this->getDoctrine()->getManager();
-        /** @var Client */
-        $client = new Client();
-        if ($ident) {
-            $client = $entityManager->getRepository(Client::class)->find($ident);
+        $response = $request->get('client', []);
+        $ident = $response['id'] ?? null;
+        $client = $entityManager->getRepository(Client::class)->find($ident);
+        if (!$client) {
+            $client = new Client();
+            $client->setCreated(new DateTime());
         }
-        $client->setCreated(new DateTime());
-        $client->setFirstName($firstname);
-        $client->setLastName($lastname);
-        $client->setEmail($email);
-        $client->setDescription($description);
-        $client->setEnabled(1);
-        $entityManager->persist($client);
-        $entityManager->flush();
+        $groupsOption = $entityManager->getRepository(GroupCategory::class)->gepOptionsGroups();
 
-        $clientGroupAlter = [];
-        foreach ($gclient as $group) {
-            $group = $entityManager->getRepository(GroupCategory::class)->find($group);
+        $form = $this->createForm(ClientType::class, $client, ['groupsc' => $groupsOption]);
+        $form->handleRequest($request);
 
-            $clientGroup = $entityManager->getRepository(ClientGroup::class)->findOneBy([
-                "client" => $client->getId(),
-                "group" => $group->getId()
-            ]);
-            if (!$clientGroup) {
-                $clientGroup = new ClientGroup();
-            }
+        $validator = $this->get('validator');
+        $error = $validator->validate($client);
+        if (count($error) > 0) {
+            $errorsString = (string)$error;
+            return new Response($errorsString);
+        }
 
-            $clientGroup->setCreated(new DateTime());
-            $clientGroup->setClient($client);
-            $clientGroup->setGroup($group);
-            $clientGroup->setEnabled(1);
-            $clientGroup->setDeleted(null);
-            $entityManager->persist($clientGroup);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $client = $form->getData();
+
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($client);
             $entityManager->flush();
-
-            $clientGroupAlter[] = $clientGroup->getId();
-        }
-        $clientGroupsExistent = $client->getClientGroups();
-        if ($clientGroupsExistent) {
-            foreach ($clientGroupsExistent as $clientGroupExist) {
-                if (!in_array($clientGroupExist->getId(), $clientGroupAlter)) {
-                    $clientGroupExist->setDeleted(new DateTime());
-                    $clientGroupExist->setEnabled(0);
-                    $entityManager->persist($clientGroupExist);
-                    $entityManager->flush();
-                }
-            }
         }
 
         return $this->redirect($this->generateUrl('showclient', ['id' => $client->getId()]));
@@ -160,6 +177,9 @@ class ClientController extends Controller
     {
         $entityManager = $this->getDoctrine()->getManager();
         $client = $entityManager->getRepository(Client::class)->find($id);
+        if (!$client) {
+            throw new Exception("El Cliente Consultado no se encuentra", 1);
+        }
         $selectGroup = [];
         foreach ($client->getClientGroups() as $gc) {
             if (($gc->getGroup()->getEnabled() && $gc->getEnabled())) {
@@ -168,7 +188,7 @@ class ClientController extends Controller
         }
         $client->selectGroup = $selectGroup;
 
-        $groups = $this->getOptionsGroups();
+        $groups = $entityManager->getRepository(GroupCategory::class)->getGroupsAsOptions();
 
         return $this->render('client/show.html.twig', [
             "client" => $client,

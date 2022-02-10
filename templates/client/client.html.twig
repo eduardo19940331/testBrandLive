@@ -14,6 +14,15 @@
         </div>
     </div>
     <div class="card-body text-black">
+        <div class="form-group col-md-4" style="margin-bottom: 35px;">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" maxlength="200" id="serach_value" name="serach_value" placeholder="Buscar" aria-label="Recipient's username" aria-describedby="basic-addon2">
+                <div class="input-group-append">
+                    <button class="btn btn-primary btn_serarch_value" type="button">BUSCAR</button>
+                    <button class="btn btn-danger btn_cancel_search" type="button">CANCELAR</button>
+                </div>
+            </div>
+        </div>
         <table id="table-list-clients" class="table">
             <thead>
                 <tr>
@@ -25,20 +34,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for client in clients %}
-                    <tr data-ident="{{ client.id }}">
-                        {% set clientName = client.firstname~' '~client.lastname %}
-                        <td class='text-center'>{{ client.firstname|default('') }}</td>
-                        <td class='text-center'>{{ client.lastname|default('') }}</td>
-                        <td class='text-center'>{{ client.email|default('') }}</td>
-                        <td class='text-center'>{{ client.clientg|default('') }}</td>
-                        <td class='text-center'>
-                            <a href="{{ path('showclient', {id:client.id}) }}" class="btn btn-sm btn-default btn-show"><i class="fa fa-eye"></i></a> 
-                            <a href="{{ path('editclient', {id:client.id}) }}" class="btn btn-sm btn-success btn-edit"><i class="fa fa-edit"></i></a> 
-                            <a class="btn btn-sm btn-danger btn-remove" data-ident="{{ client.id }}" data-name="{{ clientName }}"><i class="fa fa-times"></i></a> 
-                        </td>
-                    </tr>
-                {% endfor %}
+
             </tbody>
         </table>
     </div>
@@ -69,6 +65,12 @@
 
 {% block javascripts %}
     <script>
+        var urlToEdit = '/panel/edit';
+        var urlToShow= '/panel/show';
+        $(document).ready(function () {
+            initData();
+        });
+
         $(document).on("click", ".btn-remove", function () {
             var ident = $(this).data('ident');
             $("#identificateDeleted").val(ident);
@@ -86,9 +88,10 @@
                 type : 'POST',
                 success : function(json) {
                     if (json.state == "success") {
+                        initData();
                         $("#modal-confirm-accion-client").modal('hide');
-                        $(`[data-ident='${ident}'`).remove();
-                        toast.success(json.message ?? 'Cliente eliminado correctamente', 'Exito!');
+                        $(`[data-identtr='${ident}'`).remove();
+                        toastr.success(json.message ?? 'Cliente eliminado correctamente', 'Exito!');
                     }
                 },
                 error : function(xhr, status) {
@@ -98,6 +101,59 @@
                     showChargePageLoad();
                 }
             });
+        });
+
+        function initDataTable() {
+            $('#table-list-clients').DataTable({
+                "language": getLenguajeByDataTable({
+                    "name": "Clientes"
+                })
+            });
+        }
+
+        function initData() {
+            showChargePageLoad(true);
+            $.ajax({
+                url : '{{ path('searchClient') }}',
+                data : { search : $("#serach_value").val() },
+                type : 'POST',
+                success : function(json) {
+                    var HTML = "";
+                    $.each(json.data, function(i, row) {
+                        var fullname = row.firstname + " " + row.lastname;
+                        HTML += `<tr data-identtr="${row.id}">
+                                    <td class='text-center'>${row.firstname}</td>
+                                    <td class='text-center'>${row.lastname}</td>
+                                    <td class='text-center'>${row.email}</td>
+                                    <td class='text-center'>${row.clientg ?? '--Sin Grupo--'}</td>
+                                    <td class='text-center'>
+                                        <a href="${urlToShow}/${row.id}" class="btn btn-sm btn-default btn-show"><i class="fa fa-eye"></i></a> 
+                                        <a href="${urlToEdit}/${row.id}" class="btn btn-sm btn-success btn-edit"><i class="fa fa-edit"></i></a> 
+                                        <a class="btn btn-sm btn-danger btn-remove" data-ident="${row.id}" data-name="${fullname}"><i class="fa fa-times"></i></a>
+                                    </td>
+                                </tr>`;
+                    });
+                    if (HTML !== "" && $.fn.DataTable.isDataTable('#table-list-clients')) {
+                        $('#table-list-clients').DataTable().destroy();
+                    }
+                    $('#table-list-clients tbody').html(HTML);
+
+                    showChargePageLoad();
+                    initDataTable();
+                },
+                error : function(xhr, status) {
+                    alert('Disculpe, existió un problema');
+                },
+            });
+        }
+
+        $(document).on("click", ".btn_serarch_value", function () {
+            initData();
+        });
+
+        $(document).on("click", ".btn_cancel_search", function () {
+            $("#serach_value").val("");
+            initData();
         });
     </script>
 {% endblock %}

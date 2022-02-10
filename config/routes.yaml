@@ -4,37 +4,50 @@
 login:
     path: /login
     defaults: { _controller: 'App\Controller\SecurityController::loginAction' }
+    methods: [GET, POST]
 
 logout:
     path: /logout
     defaults: { _controller: 'App\Controller\SecurityController::logoutAction' }
 
 home:
-    path: /
+    path: /panel
     defaults: { _controller: 'App\Controller\DefaultController::homeAction' }
+    methods: GET
 
 # client
 
 client:
-    path: /index
+    path: /panel/index
     defaults: { _controller: 'App\Controller\ClientController::indexAction' }
+    methods: GET
+
+searchClient:
+    path: /panel/search
+    defaults: { _controller: 'App\Controller\ClientController::searchAction' }
+    methods: POST
 
 createclient:
-    path: /create
+    path: /panel/create
     defaults: { _controller: 'App\Controller\ClientController::createAction' }
+    methods: GET
 
 editclient:
-    path: /edit/{id}
+    path: /panel/edit/{id}
     defaults: { _controller: 'App\Controller\ClientController::editAction' }
+    methods: GET
 
 saveclient:
-    path: /save
+    path: /panel/save
     defaults: { _controller: 'App\Controller\ClientController::saveAction' }
+    methods: POST
 
 deletedclient:
-    path: /deleted
+    path: /panel/deleted
     defaults: { _controller: 'App\Controller\ClientController::deletedAction' }
+    methods: POST
 
 showclient:
-    path: /show/{id}
+    path: /panel/show/{id}
     defaults: { _controller: 'App\Controller\ClientController::showAction' }
+    methods: GET
